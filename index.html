@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-tasks"></i>
+                    Task Manager
+                </h1>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalTasks">0</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="completedTasks">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="pendingTasks">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="task-input-section">
+                <div class="input-container">
+                    <div class="input-group">
+                        <input type="text" id="taskInput" placeholder="What needs to be done?" class="task-input">
+                        <select id="prioritySelect" class="priority-select">
+                            <option value="low">Low Priority</option>
+                            <option value="medium" selected>Medium Priority</option>
+                            <option value="high">High Priority</option>
+                        </select>
+                        <select id="categorySelect" class="category-select">
+                            <option value="personal">Personal</option>
+                            <option value="work">Work</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="health">Health</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="date" id="dueDateInput" class="date-input">
+                        <button id="addTaskBtn" class="add-btn">
+                            <i class="fas fa-plus"></i>
+                            Add Task
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="filters-section">
+                <div class="filters-container">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search tasks..." class="search-input">
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="pending">Pending</button>
+                        <button class="filter-btn" data-filter="completed">Completed</button>
+                        <button class="filter-btn" data-filter="overdue">Overdue</button>
+                    </div>
+                    <div class="sort-container">
+                        <select id="sortSelect" class="sort-select">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="priority">Priority</option>
+                            <option value="dueDate">Due Date</option>
+                            <option value="alphabetical">Alphabetical</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tasks-section">
+                <div class="tasks-container" id="tasksContainer">
+                </div>
+             
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>No tasks yet</h3>
+                    <p>Add your first task to get started with your productivity journey!</p>
+                </div>
+            </section>
+        </main>
+
+        <div class="modal-overlay" id="editModal" style="display: none;">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Edit Task</h3>
+                    <button class="close-btn" id="closeEditModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="editTaskInput" placeholder="Task description" class="edit-input">
+                    <select id="editPrioritySelect" class="edit-select">
+                        <option value="low">Low Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="high">High Priority</option>
+                    </select>
+                    <select id="editCategorySelect" class="edit-select">
+                        <option value="personal">Personal</option>
+                        <option value="work">Work</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="health">Health</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <input type="date" id="editDueDateInput" class="edit-input">
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelEditBtn" class="cancel-btn">Cancel</button>
+                    <button id="saveEditBtn" class="save-btn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bulk-actions" id="bulkActions" style="display: none;">
+            <div class="bulk-info">
+                <span id="selectedCount">0</span> tasks selected
+            </div>
+            <div class="bulk-buttons">
+                <button id="bulkCompleteBtn" class="bulk-btn complete">
+                    <i class="fas fa-check"></i> Complete
+                </button>
+                <button id="bulkDeleteBtn" class="bulk-btn delete">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+                <button id="clearSelectionBtn" class="bulk-btn clear">
+                    <i class="fas fa-times"></i> Clear Selection
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="progress-ring" id="progressRing">
+        <svg width="60" height="60">
+            <circle cx="30" cy="30" r="25" stroke="#e0e7ff" stroke-width="4" fill="transparent"/>
+            <circle cx="30" cy="30" r="25" stroke="#6366f1" stroke-width="4" fill="transparent" 
+                    stroke-dasharray="157" stroke-dashoffset="157" id="progressCircle" class="progress-circle"/>
+        </svg>
+        <div class="progress-text" id="progressText">0%</div>
+    </div>
+
+    <script src="taskm.js"></script>
+</body>
+</html>
