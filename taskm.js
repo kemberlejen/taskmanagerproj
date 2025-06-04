@@ -55,6 +55,7 @@ class TaskManager {
         this.taskInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addTask();
         });
+
         this.searchInput.addEventListener('input', () => this.renderTasks());
         this.filterButtons.forEach(btn => {
             btn.addEventListener('click', (e) => this.setFilter(e.target.dataset.filter));
@@ -311,7 +312,6 @@ class TaskManager {
             `;
         }).join('');
     }
-
     isTaskOverdue(task) {
         if (!task.dueDate || task.completed) return false;
         const today = new Date();
@@ -320,13 +320,11 @@ class TaskManager {
         dueDate.setHours(0, 0, 0, 0);
         return dueDate < today;
     }
-
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-
     formatDate(dateString) {
         const date = new Date(dateString);
         const today = new Date();
@@ -345,7 +343,6 @@ class TaskManager {
             });
         }
     }
-
     formatRelativeTime(dateString) {
         const date = new Date(dateString);
         const now = new Date();
@@ -358,7 +355,6 @@ class TaskManager {
         
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
-
     toggleSelection(taskId) {
         if (this.selectedTasks.has(taskId)) {
             this.selectedTasks.delete(taskId);
@@ -367,7 +363,6 @@ class TaskManager {
         }
         this.updateBulkActions();
     }
-
     selectAllTasks() {
         const visibleTasks = this.getFilteredTasks();
         if (this.selectedTasks.size === visibleTasks.length) {
@@ -378,13 +373,11 @@ class TaskManager {
         this.renderTasks();
         this.updateBulkActions();
     }
-
     clearSelection() {
         this.selectedTasks.clear();
         this.renderTasks();
         this.updateBulkActions();
     }
-
     updateBulkActions() {
         if (this.selectedTasks.size > 0) {
             this.bulkActions.style.display = 'flex';
@@ -393,7 +386,6 @@ class TaskManager {
             this.bulkActions.style.display = 'none';
         }
     }
-
     bulkComplete() {
         this.selectedTasks.forEach(taskId => {
             const task = this.tasks.find(t => t.id === taskId);
@@ -409,7 +401,6 @@ class TaskManager {
         this.updateProgress();
         this.clearSelection();
     }
-
     bulkDelete() {
         if (confirm(`Are you sure you want to delete ${this.selectedTasks.size} tasks?`)) {
             this.tasks = this.tasks.filter(task => !this.selectedTasks.has(task.id));
@@ -421,7 +412,6 @@ class TaskManager {
             this.updateBulkActions();
         }
     }
-
     updateStats() {
         const total = this.tasks.length;
         const completed = this.tasks.filter(task => task.completed).length;
@@ -431,7 +421,6 @@ class TaskManager {
         this.completedTasks.textContent = completed;
         this.pendingTasks.textContent = pending;
     }
-
     updateProgress() {
         const total = this.tasks.length;
         const completed = this.tasks.filter(task => task.completed).length;
@@ -449,25 +438,61 @@ class TaskManager {
             this.progressRing.style.display = 'none';
         }
     }
-
     saveTasks() {
         try {
-            console.log('Tasks saved to memory:', this.tasks.length);
+            localStorage.setItem('tasks', JSON.stringify(this.tasks));
+            console.log('Tasks saved to localStorage:', this.tasks.length);
         } catch (error) {
             console.error('Error saving tasks:', error);
         }
     }
-
     loadTasks() {
         try {
-            this.tasks = this.getDemoTasks();
+            const savedTasks = localStorage.getItem('tasks');
+            this.tasks = savedTasks ? JSON.parse(savedTasks) : [];
             this.renderTasks();
         } catch (error) {
             console.error('Error loading tasks:', error);
             this.tasks = [];
         }
     }
-    
+    exportTasks() {
+        const data = {
+            tasks: this.tasks,
+            exportDate: new Date().toISOString(),
+            version: '1.0'
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tasks-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    importTasks(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.tasks && Array.isArray(data.tasks)) {
+                    this.tasks = data.tasks;
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.updateStats();
+                    this.updateProgress();
+                    alert('Tasks imported successfully!');
+                } else {
+                    alert('Invalid file format!');
+                }
+            } catch (error) {
+                alert('Error importing tasks: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
     clearAllTasks() {
         if (confirm('Are you sure you want to delete all tasks? This action cannot be undone.')) {
             this.tasks = [];
@@ -491,3 +516,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('dueDateInput').value = today;
 });
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
