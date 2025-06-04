@@ -436,11 +436,16 @@ body {
   justify-content: center;
   z-index: 100;
 }
-
 .progress-circle {
   transform: rotate(-90deg);
   transform-origin: center;
   transition: stroke-dashoffset 0.5s ease;
+}
+.progress-text {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6366f1;
 }
 .empty-state {
     text-align: center;
