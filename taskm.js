@@ -14,67 +14,77 @@ class TaskManager {
     }
 
     initializeElements() {
-        this.taskInput = document.getElementById('taskInput');
-        this.prioritySelect = document.getElementById('prioritySelect');
-        this.categorySelect = document.getElementById('categorySelect');
-        this.dueDateInput = document.getElementById('dueDateInput');
-        this.addTaskBtn = document.getElementById('addTaskBtn');
+        // Cache DOM elements for better performance
+        const elements = {
+            taskInput: 'taskInput',
+            prioritySelect: 'prioritySelect',
+            categorySelect: 'categorySelect',
+            dueDateInput: 'dueDateInput',
+            addTaskBtn: 'addTaskBtn',
+            searchInput: 'searchInput',
+            filterButtons: '.filter-btn',
+            sortSelect: 'sortSelect',
+            tasksContainer: 'tasksContainer',
+            emptyState: 'emptyState',
+            totalTasks: 'totalTasks',
+            completedTasks: 'completedTasks',
+            pendingTasks: 'pendingTasks',
+            editModal: 'editModal',
+            editTaskInput: 'editTaskInput',
+            editPrioritySelect: 'editPrioritySelect',
+            editCategorySelect: 'editCategorySelect',
+            editDueDateInput: 'editDueDateInput',
+            closeEditModal: 'closeEditModal',
+            cancelEditBtn: 'cancelEditBtn',
+            saveEditBtn: 'saveEditBtn',
+            bulkActions: 'bulkActions',
+            selectedCount: 'selectedCount',
+            bulkCompleteBtn: 'bulkCompleteBtn',
+            bulkDeleteBtn: 'bulkDeleteBtn',
+            clearSelectionBtn: 'clearSelectionBtn',
+            progressRing: 'progressRing',
+            progressCircle: 'progressCircle',
+            progressText: 'progressText'
+        };
 
-        this.searchInput = document.getElementById('searchInput');
-        this.filterButtons = document.querySelectorAll('.filter-btn');
-        this.sortSelect = document.getElementById('sortSelect');
-
-        this.tasksContainer = document.getElementById('tasksContainer');
-        this.emptyState = document.getElementById('emptyState');
-        this.totalTasks = document.getElementById('totalTasks');
-        this.completedTasks = document.getElementById('completedTasks');
-        this.pendingTasks = document.getElementById('pendingTasks');
-
-        this.editModal = document.getElementById('editModal');
-        this.editTaskInput = document.getElementById('editTaskInput');
-        this.editPrioritySelect = document.getElementById('editPrioritySelect');
-        this.editCategorySelect = document.getElementById('editCategorySelect');
-        this.editDueDateInput = document.getElementById('editDueDateInput');
-        this.closeEditModal = document.getElementById('closeEditModal');
-        this.cancelEditBtn = document.getElementById('cancelEditBtn');
-        this.saveEditBtn = document.getElementById('saveEditBtn');
-
-        this.bulkActions = document.getElementById('bulkActions');
-        this.selectedCount = document.getElementById('selectedCount');
-        this.bulkCompleteBtn = document.getElementById('bulkCompleteBtn');
-        this.bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-        this.clearSelectionBtn = document.getElementById('clearSelectionBtn');
-
-        this.progressRing = document.getElementById('progressRing');
-        this.progressCircle = document.getElementById('progressCircle');
-        this.progressText = document.getElementById('progressText');
+        // Use Object.entries for cleaner initialization
+        Object.entries(elements).forEach(([key, id]) => {
+            this[key] = document.getElementById(id);
+            if (!this[key]) {
+                console.warn(`Element with id '${id}' not found`);
+            }
+        });
     }
 
     bindEvents() {
-        this.addTaskBtn.addEventListener('click', () => this.addTask());
-        this.taskInput.addEventListener('keypress', (e) => {
+        // Use arrow functions to maintain 'this' context
+        const addTaskHandler = () => this.addTask();
+        const keyPressHandler = (e) => {
             if (e.key === 'Enter') this.addTask();
-        });
+        };
 
-        this.searchInput.addEventListener('input', () => this.renderTasks());
-        this.filterButtons.forEach(btn => {
+        this.addTaskBtn?.addEventListener('click', addTaskHandler);
+        this.taskInput?.addEventListener('keypress', keyPressHandler);
+
+        this.searchInput?.addEventListener('input', () => this.renderTasks());
+        this.filterButtons?.forEach(btn => {
             btn.addEventListener('click', (e) => this.setFilter(e.target.dataset.filter));
         });
-        this.sortSelect.addEventListener('change', () => {
+        this.sortSelect?.addEventListener('change', () => {
             this.currentSort = this.sortSelect.value;
             this.renderTasks();
         });
 
-        this.closeEditModal.addEventListener('click', () => this.closeModal());
-        this.cancelEditBtn.addEventListener('click', () => this.closeModal());
-        this.saveEditBtn.addEventListener('click', () => this.saveEdit());
-        this.editModal.addEventListener('click', (e) => {
+        this.closeEditModal?.addEventListener('click', () => this.closeModal());
+        this.cancelEditBtn?.addEventListener('click', () => this.closeModal());
+        this.saveEditBtn?.addEventListener('click', () => this.saveEdit());
+        this.editModal?.addEventListener('click', (e) => {
             if (e.target === this.editModal) this.closeModal();
         });
 
-        this.bulkCompleteBtn.addEventListener('click', () => this.bulkComplete());
-        this.bulkDeleteBtn.addEventListener('click', () => this.bulkDelete());
-        this.clearSelectionBtn.addEventListener('click', () => this.clearSelection());
+        this.bulkCompleteBtn?.addEventListener('click', () => this.bulkComplete());
+        this.bulkDeleteBtn?.addEventListener('click', () => this.bulkDelete());
+        this.clearSelectionBtn?.addEventListener('click', () => this.clearSelection());
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeModal();
@@ -90,13 +100,9 @@ class TaskManager {
     }
 
     addTask() {
-        const text = this.taskInput.value.trim();
+        const text = this.taskInput?.value.trim();
         if (!text) {
-            this.taskInput.focus();
-            this.taskInput.style.borderColor = '#ef4444';
-            setTimeout(() => {
-                this.taskInput.style.borderColor = '#e2e8f0';
-            }, 2000);
+            this.showError('Please enter a task');
             return;
         }
 
@@ -104,9 +110,9 @@ class TaskManager {
             id: this.generateId(),
             text: text,
             completed: false,
-            priority: this.prioritySelect.value,
-            category: this.categorySelect.value,
-            dueDate: this.dueDateInput.value || null,
+            priority: this.prioritySelect?.value || 'medium',
+            category: this.categorySelect?.value || 'personal',
+            dueDate: this.dueDateInput?.value || null,
             createdAt: new Date().toISOString(),
             completedAt: null
         };
@@ -116,11 +122,7 @@ class TaskManager {
         this.renderTasks();
         this.updateStats();
         this.updateProgress();
-
-        this.taskInput.value = '';
-        this.dueDateInput.value = '';
-        this.prioritySelect.value = 'medium';
-        this.categorySelect.value = 'personal';
+        this.clearInputs();
 
         this.addTaskBtn.innerHTML = '<i class="fas fa-check"></i> Added!';
         this.addTaskBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
@@ -130,19 +132,45 @@ class TaskManager {
         }, 1500);
     }
 
+    showError(message) {
+        if (!this.taskInput) return;
+        
+        this.taskInput.focus();
+        this.taskInput.style.borderColor = '#ef4444';
+        setTimeout(() => {
+            this.taskInput.style.borderColor = '#e2e8f0';
+        }, 2000);
+        
+        // Optional: Add error message display
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        this.taskInput.parentNode.appendChild(errorDiv);
+        setTimeout(() => errorDiv.remove(), 2000);
+    }
+
+    clearInputs() {
+        if (this.taskInput) this.taskInput.value = '';
+        if (this.prioritySelect) this.prioritySelect.value = 'medium';
+        if (this.categorySelect) this.categorySelect.value = 'personal';
+        if (this.dueDateInput) this.dueDateInput.value = '';
+    }
+
     deleteTask(id) {
-        if (confirm('Are you sure you want to delete this task?')) {
-            this.tasks = this.tasks.filter(task => task.id !== id);
-            this.selectedTasks.delete(id);
-            this.saveTasks();
-            this.renderTasks();
-            this.updateStats();
-            this.updateProgress();
-            this.updateBulkActions();
-        }
+        if (!id || !confirm('Delete this task?')) return;
+        
+        this.tasks = this.tasks.filter(task => task.id !== id);
+        this.selectedTasks.delete(id);
+        this.saveTasks();
+        this.renderTasks();
+        this.updateStats();
+        this.updateProgress();
+        this.updateBulkActions();
     }
 
     toggleTask(id) {
+        if (!id) return;
+        
         const task = this.tasks.find(task => task.id === id);
         if (task) {
             task.completed = !task.completed;
@@ -264,17 +292,20 @@ class TaskManager {
     }
 
     renderTasks() {
+        if (!this.tasksContainer) return;
+        
         const filteredTasks = this.getFilteredTasks();
         
         if (filteredTasks.length === 0) {
-            this.tasksContainer.innerHTML = '';
-            this.emptyState.style.display = 'block';
+            this.tasksContainer.innerHTML = '<div class="empty-state">No tasks found</div>';
             return;
         }
-
-        this.emptyState.style.display = 'none';
         
-        this.tasksContainer.innerHTML = filteredTasks.map(task => {
+        // Use DocumentFragment for better performance
+        const fragment = document.createDocumentFragment();
+        const template = document.createElement('template');
+        
+        template.innerHTML = filteredTasks.map(task => {
             const isOverdue = this.isTaskOverdue(task);
             const isSelected = this.selectedTasks.has(task.id);
             
@@ -311,7 +342,12 @@ class TaskManager {
                 </div>
             `;
         }).join('');
+        
+        fragment.appendChild(template.content);
+        this.tasksContainer.innerHTML = '';
+        this.tasksContainer.appendChild(fragment);
     }
+
     isTaskOverdue(task) {
         if (!task.dueDate || task.completed) return false;
         const today = new Date();
@@ -320,11 +356,13 @@ class TaskManager {
         dueDate.setHours(0, 0, 0, 0);
         return dueDate < today;
     }
+
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
+
     formatDate(dateString) {
         const date = new Date(dateString);
         const today = new Date();
@@ -343,6 +381,7 @@ class TaskManager {
             });
         }
     }
+
     formatRelativeTime(dateString) {
         const date = new Date(dateString);
         const now = new Date();
@@ -355,6 +394,7 @@ class TaskManager {
         
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
+
     toggleSelection(taskId) {
         if (this.selectedTasks.has(taskId)) {
             this.selectedTasks.delete(taskId);
@@ -363,6 +403,7 @@ class TaskManager {
         }
         this.updateBulkActions();
     }
+
     selectAllTasks() {
         const visibleTasks = this.getFilteredTasks();
         if (this.selectedTasks.size === visibleTasks.length) {
@@ -373,11 +414,13 @@ class TaskManager {
         this.renderTasks();
         this.updateBulkActions();
     }
+
     clearSelection() {
         this.selectedTasks.clear();
         this.renderTasks();
         this.updateBulkActions();
     }
+
     updateBulkActions() {
         if (this.selectedTasks.size > 0) {
             this.bulkActions.style.display = 'flex';
@@ -386,6 +429,7 @@ class TaskManager {
             this.bulkActions.style.display = 'none';
         }
     }
+
     bulkComplete() {
         this.selectedTasks.forEach(taskId => {
             const task = this.tasks.find(t => t.id === taskId);
@@ -401,6 +445,7 @@ class TaskManager {
         this.updateProgress();
         this.clearSelection();
     }
+
     bulkDelete() {
         if (confirm(`Are you sure you want to delete ${this.selectedTasks.size} tasks?`)) {
             this.tasks = this.tasks.filter(task => !this.selectedTasks.has(task.id));
@@ -412,7 +457,10 @@ class TaskManager {
             this.updateBulkActions();
         }
     }
+
     updateStats() {
+        if (!this.totalTasks || !this.completedTasks || !this.pendingTasks) return;
+        
         const total = this.tasks.length;
         const completed = this.tasks.filter(task => task.completed).length;
         const pending = total - completed;
@@ -421,6 +469,7 @@ class TaskManager {
         this.completedTasks.textContent = completed;
         this.pendingTasks.textContent = pending;
     }
+
     updateProgress() {
         const total = this.tasks.length;
         const completed = this.tasks.filter(task => task.completed).length;
@@ -438,14 +487,17 @@ class TaskManager {
             this.progressRing.style.display = 'none';
         }
     }
+
     saveTasks() {
         try {
             localStorage.setItem('tasks', JSON.stringify(this.tasks));
             console.log('Tasks saved to localStorage:', this.tasks.length);
         } catch (error) {
             console.error('Error saving tasks:', error);
+            this.showError('Failed to save tasks');
         }
     }
+
     loadTasks() {
         try {
             const savedTasks = localStorage.getItem('tasks');
@@ -454,8 +506,10 @@ class TaskManager {
         } catch (error) {
             console.error('Error loading tasks:', error);
             this.tasks = [];
+            this.showError('Failed to load tasks');
         }
     }
+
     exportTasks() {
         const data = {
             tasks: this.tasks,
@@ -472,6 +526,7 @@ class TaskManager {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
+
     importTasks(file) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -493,6 +548,7 @@ class TaskManager {
         };
         reader.readAsText(file);
     }
+
     clearAllTasks() {
         if (confirm('Are you sure you want to delete all tasks? This action cannot be undone.')) {
             this.tasks = [];
@@ -505,6 +561,7 @@ class TaskManager {
         }
     }
 }
+
 document.addEventListener('DOMContentLoaded', () => {
     window.taskManager = new TaskManager();
     
@@ -516,6 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('dueDateInput').value = today;
 });
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
