@@ -555,3 +555,37 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 5px 15px rgba(99,102,241,0.3);
 }
+.task-actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.task-item:hover .task-actions {
+  opacity: 1;
+}
+.action-btn {
+  width: 36px; height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.3s, transform 0.3s;
+  padding: 8px;
+}
+.edit-btn {
+  background: rgba(59,130,246,0.1);
+  color: #3b82f6;
+}
+.edit-btn:hover {
+  background: rgba(59,130,246,0.2);
+  transform: scale(1.1);
+}
+.delete-btn {
+  background: rgba(239,68,68,0.1);
+  color: #ef4444;
+}
+.delete-btn:hover {
+  background: rgba(239,68,68,0.2);
+  transform: scale(1.1);
+}
