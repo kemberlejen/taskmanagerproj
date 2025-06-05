@@ -126,7 +126,7 @@ class TaskManager {
         this.addTaskBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
         setTimeout(() => {
             this.addTaskBtn.innerHTML = '<i class="fas fa-plus"></i> Add Task';
-            this.addTaskBtn.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+            this.addTaskBtn.style.background = 'linear-gradient(135deg, #FFB6C1, #FFC0CB)';
         }, 1500);
     }
 
